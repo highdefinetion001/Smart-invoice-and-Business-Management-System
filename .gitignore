@@ -1,0 +1,19 @@
+# Java / Spring Boot
+backend/target/
+*.class
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+
+# Environment / secrets
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
