@@ -9,37 +9,15 @@ const api = axios.create({
   },
 });
 
-// Add auth token to every request
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
-
-// Handle 401 responses
+// Handle errors (removed 401 redirect)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }
     return Promise.reject(error);
   }
 );
 
 export default api;
-
-// Auth
-export const authApi = {
-  login: (email: string, password: string) =>
-    api.post("/auth/login", { email, password }),
-};
 
 // Materials
 export const materialsApi = {
@@ -71,6 +49,7 @@ export const invoicesApi = {
   search: (query: string) => api.get(`/invoices/search?query=${query}`),
   getByCustomer: (customerId: number) => api.get(`/invoices/customer/${customerId}`),
   getByStatus: (status: string) => api.get(`/invoices/status/${status}`),
+  getPdfUrl: (id: number) => `${API_BASE_URL}/invoices/${id}/pdf`,
 };
 
 // Payments

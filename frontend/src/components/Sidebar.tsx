@@ -12,11 +12,11 @@ import {
   Wallet,
   BarChart3,
   Settings,
-  LogOut,
   Receipt,
 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 import { Separator } from "@/components/ui/separator";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { useTheme } from "next-themes";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -30,7 +30,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-border bg-card dark:border-border dark:bg-zinc-950">
@@ -84,25 +84,23 @@ export default function Sidebar() {
           <Settings className="h-4 w-4" />
           Settings
         </Link>
-        <button
-          onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-600 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </button>
       </div>
 
       {/* User Info */}
       <div className="border-t border-border p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-            {user?.name?.charAt(0) || "A"}
+            A
           </div>
           <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-foreground">{user?.name || "Admin"}</p>
-            <p className="truncate text-xs text-muted-foreground">{user?.email || ""}</p>
+            <p className="truncate text-sm font-medium text-foreground">Admin</p>
+            <p className="truncate text-xs text-muted-foreground">admin@smartinvoice.local</p>
           </div>
+          <AnimatedThemeToggler 
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card dark:bg-zinc-800 shadow-sm border border-border dark:border-border"
+            theme={theme === "dark" ? "dark" : "light"}
+            onThemeChange={(newTheme) => setTheme(newTheme)}
+          />
         </div>
       </div>
     </aside>

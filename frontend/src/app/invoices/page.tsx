@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, FileText, Eye } from "lucide-react";
+import { Plus, Search, FileText, Eye, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -121,9 +121,14 @@ export default function InvoicesPage() {
                       <Badge className={statusColors[inv.status] || ""} variant="outline">{inv.status}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link href={`/invoices/${inv.id}`} onClick={(e) => e.stopPropagation()}>
-                        <Button size="sm" variant="ghost"><Eye className="h-4 w-4" /></Button>
-                      </Link>
+                      <div className="flex justify-end gap-1">
+                        <Link href={`/invoices/${inv.id}`} onClick={(e) => e.stopPropagation()}>
+                          <Button size="sm" variant="ghost"><Eye className="h-4 w-4" /></Button>
+                        </Link>
+                        <a href={invoicesApi.getPdfUrl(inv.id)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                          <Button size="sm" variant="ghost"><Download className="h-4 w-4" /></Button>
+                        </a>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

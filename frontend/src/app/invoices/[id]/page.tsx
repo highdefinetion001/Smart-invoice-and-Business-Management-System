@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, IndianRupee, Trash2 } from "lucide-react";
+import { ArrowLeft, IndianRupee, Trash2, Download } from "lucide-react";
 import { toast } from "sonner";
 
 const statusColors: Record<string, string> = {
@@ -112,6 +112,11 @@ export default function InvoiceDetailPage() {
               </DialogContent>
             </Dialog>
           )}
+          <a href={invoicesApi.getPdfUrl(invoice.id)} target="_blank" rel="noopener noreferrer">
+            <Button variant="outline" className="text-zinc-700 dark:text-zinc-300">
+              <Download className="mr-2 h-4 w-4" /> Download PDF
+            </Button>
+          </a>
           {invoice.status !== "CANCELLED" && (
             <Button variant="outline" className="text-red-500" onClick={handleDelete}><Trash2 className="mr-2 h-4 w-4" /> Cancel Invoice</Button>
           )}

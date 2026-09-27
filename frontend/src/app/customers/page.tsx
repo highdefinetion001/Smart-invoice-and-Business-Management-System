@@ -32,6 +32,10 @@ export default function CustomersPage() {
   };
 
   const handleSave = async () => {
+    if (!form.name.trim() || !form.phone.trim()) {
+      toast.error("Name and Phone are required");
+      return;
+    }
     try {
       if (editing) { await customersApi.update(editing.id, form); toast.success("Customer updated"); }
       else { await customersApi.create(form); toast.success("Customer created"); }
