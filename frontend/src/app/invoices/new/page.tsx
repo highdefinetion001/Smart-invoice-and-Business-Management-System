@@ -11,6 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Plus, Trash2, ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -49,6 +55,17 @@ export default function NewInvoicePage() {
   const [customerNotes, setCustomerNotes] = useState("");
   const [internalNotes, setInternalNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [newCustomerOpen, setNewCustomerOpen] = useState(false);
+const [creatingCustomer, setCreatingCustomer] = useState(false);
+
+const [newCustomer, setNewCustomer] = useState({
+  name: "",
+  phone: "",
+  email: "",
+  address: "",
+  gstNumber: "",
+  notes: "",
+});
 
   useEffect(() => {
     Promise.all([
@@ -113,6 +130,46 @@ export default function NewInvoicePage() {
   const formatCurrency = (v: number) =>
     new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(v);
 
+  const handleCreateCustomer = async () => {
+  if (!newCustomer.name.trim() || !newCustomer.phone.trim()) {
+    toast.error("Customer name and phone are required");
+    return;
+  }
+
+  setCreatingCustomer(true);
+
+  try {
+    const response = await customersApi.create(newCustomer);
+
+    const createdCustomer = response.data;
+
+    // Add newly created customer to the dropdown
+    setCustomers((prev) => [...prev, createdCustomer]);
+
+    // Automatically select the new customer
+    setCustomerId(String(createdCustomer.id));
+
+    toast.success("Customer created successfully");
+
+    // Close dialog
+    setNewCustomerOpen(false);
+
+    // Clear form
+    setNewCustomer({
+      name: "",
+      phone: "",
+      email: "",
+      address: "",
+      gstNumber: "",
+      notes: "",
+    });
+  } catch {
+    toast.error("Failed to create customer");
+  } finally {
+    setCreatingCustomer(false);
+  }
+};
+
   const handleSave = async (status: string = "UNPAID") => {
     if (!customerId) { toast.error("Please select a customer"); return; }
     if (items.every((i) => i.lineTotal === 0)) { toast.error("Add at least one item"); return; }
@@ -171,17 +228,38 @@ export default function NewInvoicePage() {
             <CardHeader><CardTitle className="text-base">Invoice Details</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Customer *</Label>
-                  <Select value={customerId} onValueChange={(v: string | null) => setCustomerId(v || "")}>
-                    <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
-                    <SelectContent>
-                      {customers.map((c) => (
-                        <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+               <div className="space-y-2">
+  <Label>Customer *</Label>
+
+  <div className="flex gap-2">
+    <Select
+      value={customerId}
+      onValueChange={(v: string | null) => setCustomerId(v || "")}
+    >
+      <SelectTrigger className="flex-1">
+        <SelectValue placeholder="Select customer" />
+      </SelectTrigger>
+
+      <SelectContent>
+        {customers.map((c) => (
+          <SelectItem key={c.id} value={String(c.id)}>
+            {c.name} - {c.phone}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+
+    <Button
+      type="button"
+      variant="outline"
+      onClick={() => setNewCustomerOpen(true)}
+      className="shrink-0"
+    >
+      <Plus className="mr-2 h-4 w-4" />
+      New
+    </Button>
+  </div>
+</div>
                 <div className="space-y-2">
                   <Label>Payment Terms</Label>
                   <Select value={paymentTerms} onValueChange={(v: string | null) => setPaymentTerms(v || "")}>
@@ -379,6 +457,139 @@ export default function NewInvoicePage() {
           </div>
         </div>
       </div>
+      ```tsx
+
+      {/* New Customer Dialog */}
+      <Dialog
+        open={newCustomerOpen}
+        onOpenChange={setNewCustomerOpen}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>New Customer</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 pt-4">
+
+            <div className="grid grid-cols-2 gap-4">
+
+              <div className="space-y-2">
+                <Label>Customer Name *</Label>
+                <Input
+                  value={newCustomer.name}
+                  onChange={(e) =>
+                    setNewCustomer({
+                      ...newCustomer,
+                      name: e.target.value,
+                    })
+                  }
+                  placeholder="ABC Pvt Ltd"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Phone Number *</Label>
+                <Input
+                  value={newCustomer.phone}
+                  onChange={(e) =>
+                    setNewCustomer({
+                      ...newCustomer,
+                      phone: e.target.value,
+                    })
+                  }
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+
+            </div>
+
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={newCustomer.email}
+                onChange={(e) =>
+                  setNewCustomer({
+                    ...newCustomer,
+                    email: e.target.value,
+                  })
+                }
+                placeholder="customer@example.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Address</Label>
+              <Textarea
+                value={newCustomer.address}
+                onChange={(e) =>
+                  setNewCustomer({
+                    ...newCustomer,
+                    address: e.target.value,
+                  })
+                }
+                placeholder="Full address..."
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>GST Number</Label>
+              <Input
+                value={newCustomer.gstNumber}
+                onChange={(e) =>
+                  setNewCustomer({
+                    ...newCustomer,
+                    gstNumber: e.target.value,
+                  })
+                }
+                placeholder="GSTIN"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Notes</Label>
+              <Textarea
+                value={newCustomer.notes}
+                onChange={(e) =>
+                  setNewCustomer({
+                    ...newCustomer,
+                    notes: e.target.value,
+                  })
+                }
+                placeholder="Customer notes..."
+                rows={2}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setNewCustomerOpen(false)}
+                disabled={creatingCustomer}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                type="button"
+                onClick={handleCreateCustomer}
+                disabled={creatingCustomer}
+              >
+                {creatingCustomer && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+
+                Create Customer
+              </Button>
+
+            </div>
+
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

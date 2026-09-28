@@ -12,7 +12,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Wallet, Search } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Wallet,
+  Search,
+  TrendingDown,
+  CalendarDays,
+  Receipt,
+  ArrowDownRight,
+} from "lucide-react";
 import { toast } from "sonner";
 
 const categories = ["Electricity", "Transport", "Material Purchase", "Office Expense", "Rent", "Salary", "Maintenance", "Other"];
@@ -25,6 +35,7 @@ export default function ExpensesPage() {
   const [editing, setEditing] = useState<Expense | null>(null);
   const [form, setForm] = useState(emptyExpense);
   const [search, setSearch] = useState("");
+  const [expenseCategory, setExpenseCategory] = useState("ALL");
 
   useEffect(() => { loadExpenses(); }, []);
 
@@ -56,8 +67,46 @@ export default function ExpensesPage() {
   };
 
   const fmt = (v: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(v);
-  const filtered = expenses.filter((e) => e.title.toLowerCase().includes(search.toLowerCase()) || e.category.toLowerCase().includes(search.toLowerCase()));
+ const filtered = expenses.filter((e) => {
+  const matchesSearch =
+    e.title.toLowerCase().includes(search.toLowerCase()) ||
+    e.category.toLowerCase().includes(search.toLowerCase());
+
+  const matchesCategory =
+    expenseCategory === "ALL" || e.category === expenseCategory;
+
+  return matchesSearch && matchesCategory;
+});
   const totalExpenses = filtered.reduce((s, e) => s + e.amount, 0);
+  const today = new Date();
+const currentMonth = today.getMonth();
+const currentYear = today.getFullYear();
+
+const startOfWeek = new Date(today);
+const day = startOfWeek.getDay();
+
+startOfWeek.setDate(
+  startOfWeek.getDate() - (day === 0 ? 6 : day - 1)
+);
+startOfWeek.setHours(0, 0, 0, 0);
+
+const monthlyExpenses = expenses
+  .filter((e) => {
+    const date = new Date(e.expenseDate);
+    return (
+      date.getMonth() === currentMonth &&
+      date.getFullYear() === currentYear
+    );
+  })
+  .reduce((s, e) => s + Number(e.amount || 0), 0);
+
+const weeklyExpenses = expenses
+  .filter((e) => {
+    const date = new Date(e.expenseDate);
+    date.setHours(0, 0, 0, 0);
+    return date >= startOfWeek && date <= today;
+  })
+  .reduce((s, e) => s + Number(e.amount || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -94,15 +143,152 @@ export default function ExpensesPage() {
         </Dialog>
       </div>
 
-      <Card className="border-border"><CardContent className="p-5"><p className="text-sm text-muted-foreground">Total Expenses</p><p className="text-2xl font-bold text-rose-600">{fmt(totalExpenses)}</p></CardContent></Card>
+     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+  {/* Total Expenses */}
+  <Card className="border-border">
+    <CardContent className="p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Total Expenses
+          </p>
+          <p className="mt-2 text-2xl font-bold">
+            {fmt(totalExpenses)}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-rose-500/10 p-3">
+          <Wallet className="h-5 w-5 text-rose-600" />
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+        <ArrowDownRight className="h-3 w-3 text-rose-500" />
+        All recorded expenses
+      </div>
+    </CardContent>
+  </Card>
+
+  {/* This Month */}
+  <Card className="border-border">
+    <CardContent className="p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            This Month
+          </p>
+          <p className="mt-2 text-2xl font-bold">
+            {fmt(monthlyExpenses)}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-orange-500/10 p-3">
+          <CalendarDays className="h-5 w-5 text-orange-600" />
+        </div>
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground">
+        Current month spending
+      </p>
+    </CardContent>
+  </Card>
+
+  {/* This Week */}
+  <Card className="border-border">
+    <CardContent className="p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            This Week
+          </p>
+          <p className="mt-2 text-2xl font-bold">
+            {fmt(weeklyExpenses)}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-blue-500/10 p-3">
+          <TrendingDown className="h-5 w-5 text-blue-600" />
+        </div>
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground">
+        Monday to today
+      </p>
+    </CardContent>
+  </Card>
+
+  {/* Expense Records */}
+  <Card className="border-border">
+    <CardContent className="p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Expense Records
+          </p>
+          <p className="mt-2 text-2xl font-bold">
+            {expenses.length}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-emerald-500/10 p-3">
+          <Receipt className="h-5 w-5 text-emerald-600" />
+        </div>
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground">
+        Total recorded transactions
+      </p>
+    </CardContent>
+  </Card>
+
+</div>
 
       <Card className="border-border">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold">All Expenses</CardTitle>
-            <div className="relative w-64"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" /></div>
-          </div>
-        </CardHeader>
+       ```tsx
+<CardHeader className="pb-3">
+  <div className="flex items-center justify-between">
+    <CardTitle className="text-base font-semibold">
+      All Expenses
+    </CardTitle>
+
+    <div className="flex items-center gap-2">
+      <Select
+        value={expenseCategory}
+        onValueChange={(v: string | null) =>
+          setExpenseCategory(v || "ALL")
+        }
+      >
+        <SelectTrigger className="w-48">
+          <SelectValue placeholder="All Categories" />
+        </SelectTrigger>
+
+        <SelectContent>
+          <SelectItem value="ALL">All Categories</SelectItem>
+
+          {categories.map((category) => (
+            <SelectItem key={category} value={category}>
+              {category}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <div className="relative w-64">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+        <Input
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+    </div>
+  </div>
+</CardHeader>
+```
+
         <CardContent>
           {loading ? <div className="flex h-40 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" /></div>
           : filtered.length === 0 ? <div className="flex h-40 flex-col items-center justify-center text-muted-foreground"><Wallet className="mb-2 h-10 w-10" /><p>No expenses</p></div>
