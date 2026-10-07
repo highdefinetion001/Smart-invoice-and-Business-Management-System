@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Inter, Playfair_Display, JetBrains_Mono } from "next/font/google";
+import {
+  Inter,
+  Playfair_Display,
+  JetBrains_Mono,
+} from "next/font/google";
+
 import ClientLayout from "./ClientLayout";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -24,7 +30,8 @@ const fontMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Smart Invoice — Business Management System",
-  description: "Professional invoicing and business management system for managing materials, customers, invoices, payments, expenses, and reports.",
+  description:
+    "Professional invoicing and business management system for managing materials, customers, invoices, payments, expenses, and reports.",
 };
 
 export default function RootLayout({
@@ -33,9 +40,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}>
-        <ClientLayout>{children}</ClientLayout>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          storageKey="smart-invoice-theme"
+          disableTransitionOnChange
+        >
+          <ClientLayout>{children}</ClientLayout>
+        </ThemeProvider>
       </body>
     </html>
   );

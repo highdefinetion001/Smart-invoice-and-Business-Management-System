@@ -216,6 +216,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
@@ -390,4 +391,892 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--stone-400);
+}
+
+/* ============================================================
+   SMART INVOICE
+   PREMIUM LIGHT / DARK THEME
+   ============================================================ */
+
+/* ============================================================
+   LIGHT THEME
+   ============================================================ */
+
+:root {
+  --background: #f7f7f5;
+  --foreground: #171614;
+
+  --card: #ffffff;
+  --card-foreground: #171614;
+
+  --popover: #ffffff;
+  --popover-foreground: #171614;
+
+  --primary: #171614;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1f0ed;
+  --secondary-foreground: #272522;
+
+  --muted: #f3f2ef;
+  --muted-foreground: #77736d;
+
+  --accent: #b58b18;
+  --accent-foreground: #ffffff;
+
+  --input: #ffffff;
+  --border: #e5e2dc;
+  --ring: #b58b18;
+
+  /* Main surfaces */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f7f7f5;
+  --surface-tertiary: #f1f0ec;
+  --surface-elevated: #ffffff;
+
+  /* Borders */
+  --border-primary: #e3e0da;
+  --border-secondary: #efede9;
+  --border-focus: #b58b18;
+  --border-accent: #c59b29;
+
+  /* Stone scale */
+  --stone-25: #fafaf9;
+  --stone-50: #f7f7f5;
+  --stone-100: #f1f0ed;
+  --stone-200: #e5e2dc;
+  --stone-300: #d3d0ca;
+  --stone-400: #918d86;
+  --stone-500: #77736d;
+  --stone-600: #625e58;
+  --stone-700: #48443f;
+  --stone-800: #302d29;
+  --stone-900: #171614;
+  --stone-950: #0d0c0b;
+
+  /* Gold */
+  --accent-50: #fff9e8;
+  --accent-100: #f9edc7;
+  --accent-200: #f0d98c;
+  --accent-300: #dfbc52;
+  --accent-400: #cfa332;
+  --accent-500: #b58b18;
+  --accent-600: #997310;
+  --accent-700: #76560c;
+
+  /* Status */
+  --success-50: #ecfdf3;
+  --success-100: #d1fae0;
+  --success-500: #16a34a;
+  --success-600: #15803d;
+
+  --warning-50: #fff8e6;
+  --warning-100: #ffedb8;
+  --warning-500: #d97706;
+  --warning-600: #b45309;
+
+  --danger-50: #fff0f0;
+  --danger-100: #ffd7d7;
+  --danger-500: #dc2626;
+  --danger-600: #b91c1c;
+
+  --info-50: #eff6ff;
+  --info-100: #dbeafe;
+  --info-500: #2563eb;
+  --info-600: #1d4ed8;
+
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #302d29;
+  --sidebar-primary: #171614;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f3ef;
+  --sidebar-accent-foreground: #171614;
+  --sidebar-border: #e6e3dd;
+  --sidebar-ring: #b58b18;
+
+  /* Shadows */
+  --shadow-xs:
+    0 1px 2px rgba(20, 18, 14, 0.04);
+
+  --shadow-sm:
+    0 2px 6px rgba(20, 18, 14, 0.06);
+
+  --shadow-md:
+    0 8px 20px rgba(20, 18, 14, 0.07);
+
+  --shadow-lg:
+    0 14px 35px rgba(20, 18, 14, 0.09);
+
+  --shadow-xl:
+    0 22px 50px rgba(20, 18, 14, 0.12);
+}
+
+
+/* ============================================================
+   PREMIUM DARK THEME
+   ============================================================ */
+
+.dark {
+  /* ----------------------------------------------------------
+     MAIN
+     ---------------------------------------------------------- */
+
+  --background: #0b0b0a;
+  --foreground: #f4f1eb;
+
+  /* ----------------------------------------------------------
+     CARDS
+     ---------------------------------------------------------- */
+
+  --card: #151513;
+  --card-foreground: #f4f1eb;
+
+  --popover: #181816;
+  --popover-foreground: #f4f1eb;
+
+  /* ----------------------------------------------------------
+     PRIMARY
+     ---------------------------------------------------------- */
+
+  --primary: #f1ede5;
+  --primary-foreground: #11110f;
+
+  --secondary: #1b1b18;
+  --secondary-foreground: #ebe7df;
+
+  --muted: #181816;
+  --muted-foreground: #96928a;
+
+  /* ----------------------------------------------------------
+     GOLD ACCENT
+     ---------------------------------------------------------- */
+
+  --accent: #d3a62e;
+  --accent-foreground: #11110f;
+
+  /* ----------------------------------------------------------
+     INPUT / BORDER
+     ---------------------------------------------------------- */
+
+  --input: #151513;
+  --border: #292824;
+  --ring: #d3a62e;
+
+  /* ----------------------------------------------------------
+     SURFACES
+     ---------------------------------------------------------- */
+
+  --surface-primary: #151513;
+  --surface-secondary: #0b0b0a;
+  --surface-tertiary: #1c1c19;
+  --surface-elevated: #20201c;
+
+  /* ----------------------------------------------------------
+     BORDERS
+     ---------------------------------------------------------- */
+
+  --border-primary: #302f2a;
+  --border-secondary: #24231f;
+  --border-focus: #d3a62e;
+  --border-accent: #c89b26;
+
+  /* ----------------------------------------------------------
+     STONE SCALE
+     ---------------------------------------------------------- */
+
+  --stone-25: #0b0b0a;
+  --stone-50: #10100e;
+  --stone-100: #151513;
+  --stone-200: #1e1e1b;
+  --stone-300: #302f2a;
+  --stone-400: #77736b;
+  --stone-500: #96928a;
+  --stone-600: #aaa69e;
+  --stone-700: #c2beb6;
+  --stone-800: #d8d4cc;
+  --stone-900: #f0ede6;
+  --stone-950: #faf8f3;
+
+  /* ----------------------------------------------------------
+     GOLD SCALE
+     ---------------------------------------------------------- */
+
+  --accent-50: #201a0b;
+  --accent-100: #30250d;
+  --accent-200: #49370e;
+  --accent-300: #6b500f;
+  --accent-400: #e3bb45;
+  --accent-500: #d3a62e;
+  --accent-600: #e1b73c;
+  --accent-700: #f0c956;
+
+  /* ----------------------------------------------------------
+     STATUS
+     ---------------------------------------------------------- */
+
+  --success-50: #0b2115;
+  --success-100: #10351d;
+  --success-500: #22c55e;
+  --success-600: #4ade80;
+
+  --warning-50: #241b08;
+  --warning-100: #3a2a0b;
+  --warning-500: #f59e0b;
+  --warning-600: #fbbf24;
+
+  --danger-50: #281010;
+  --danger-100: #3b1515;
+  --danger-500: #ef4444;
+  --danger-600: #f87171;
+
+  --info-50: #0c1b30;
+  --info-100: #102642;
+  --info-500: #3b82f6;
+  --info-600: #60a5fa;
+
+  /* ----------------------------------------------------------
+     SIDEBAR
+     ---------------------------------------------------------- */
+
+  --sidebar: #10100f;
+  --sidebar-foreground: #e9e5dd;
+  --sidebar-primary: #f0ede6;
+  --sidebar-primary-foreground: #11110f;
+  --sidebar-accent: #1b1b18;
+  --sidebar-accent-foreground: #f4f1eb;
+  --sidebar-border: #282722;
+  --sidebar-ring: #d3a62e;
+
+  /* ----------------------------------------------------------
+     PREMIUM DARK SHADOWS
+     ---------------------------------------------------------- */
+
+  --shadow-xs:
+    0 1px 2px rgba(0, 0, 0, 0.35);
+
+  --shadow-sm:
+    0 3px 8px rgba(0, 0, 0, 0.35);
+
+  --shadow-md:
+    0 8px 22px rgba(0, 0, 0, 0.38);
+
+  --shadow-lg:
+    0 14px 35px rgba(0, 0, 0, 0.45);
+
+  --shadow-xl:
+    0 24px 55px rgba(0, 0, 0, 0.55);
+}
+
+
+/* ============================================================
+   GLOBAL THEME TRANSITION
+   ============================================================ */
+
+html,
+body {
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+
+/* ============================================================
+   DARK MODE — BODY
+   ============================================================ */
+
+.dark body {
+  background:
+    radial-gradient(circle at 85% 5%,
+      rgba(211, 166, 46, 0.035),
+      transparent 30%),
+    #0b0b0a;
+
+  color: var(--foreground);
+}
+
+
+/* ============================================================
+   DARK MODE — MAIN CONTENT
+   ============================================================ */
+
+.dark main {
+  background:
+    linear-gradient(180deg,
+      #0b0b0a 0%,
+      #0e0e0c 100%);
+
+  color: var(--stone-900);
+}
+
+
+/* ============================================================
+   DARK MODE — SIDEBAR
+   ============================================================ */
+
+.dark aside {
+  background:
+    linear-gradient(180deg,
+      #11110f 0%,
+      #0e0e0d 100%);
+
+  border-right-color: #292823;
+
+  box-shadow:
+    8px 0 30px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ============================================================
+   DARK MODE — CARDS
+   ============================================================ */
+
+.dark .card-refined,
+.dark [class*="card"] {
+  background:
+    linear-gradient(145deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.008)),
+    var(--surface-primary);
+
+  border-color: var(--border-primary);
+
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.22);
+}
+
+
+/* ============================================================
+   DARK MODE — CARD HOVER
+   ============================================================ */
+
+.dark .card-refined:hover,
+.dark [class*="card"]:hover {
+  border-color: #3b3932;
+
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.32);
+}
+
+
+/* ============================================================
+   DARK MODE — HEADINGS
+   ============================================================ */
+
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #f4f1eb;
+  letter-spacing: -0.025em;
+}
+
+
+/* ============================================================
+   DARK MODE — NORMAL TEXT
+   ============================================================ */
+
+.dark p {
+  color: var(--stone-600);
+}
+
+.dark small {
+  color: var(--stone-500);
+}
+
+
+/* ============================================================
+   DARK MODE — LABELS
+   ============================================================ */
+
+.dark label {
+  color: var(--stone-700);
+}
+
+
+/* ============================================================
+   DARK MODE — INPUTS
+   ============================================================ */
+
+.dark input,
+.dark textarea,
+.dark select {
+  background:
+    linear-gradient(180deg,
+      #181816,
+      #141412) !important;
+
+  color: #f0ede6 !important;
+
+  border: 1px solid #302f2a !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+
+/* ============================================================
+   INPUT PLACEHOLDER
+   ============================================================ */
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #706d66 !important;
+}
+
+
+/* ============================================================
+   INPUT FOCUS
+   ============================================================ */
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #d3a62e !important;
+
+  box-shadow:
+    0 0 0 3px rgba(211, 166, 46, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+  outline: none;
+}
+
+
+/* ============================================================
+   DARK MODE — TABLE
+   ============================================================ */
+
+.dark table {
+  color: var(--stone-800);
+  border-color: var(--border-primary);
+}
+
+
+/* Table header */
+
+.dark thead,
+.dark th {
+  background: #11110f !important;
+  color: #aaa69e !important;
+
+  border-color: #292824 !important;
+}
+
+
+/* Table body */
+
+.dark tbody {
+  background: #151513;
+}
+
+.dark td {
+  color: #d2cec6 !important;
+  border-color: #292824 !important;
+}
+
+
+/* Table row */
+
+.dark tbody tr {
+  background: #151513;
+  transition:
+    background-color 0.18s ease;
+}
+
+.dark tbody tr:hover {
+  background: #1b1b18 !important;
+}
+
+
+/* ============================================================
+   DARK MODE — WHITE SURFACES
+   ============================================================ */
+
+.dark [style*="#FFFFFF"],
+.dark [style*="#ffffff"],
+.dark [style*="rgb(255, 255, 255)"],
+.dark [style*="rgb(255,255,255)"] {
+  background-color: var(--surface-primary) !important;
+}
+
+
+/* ============================================================
+   DARK MODE — COMMON WHITE BACKGROUND CLASSES
+   ============================================================ */
+
+.dark .bg-white {
+  background-color: var(--surface-primary) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: var(--surface-secondary) !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: var(--surface-tertiary) !important;
+}
+
+
+/* ============================================================
+   DARK MODE — BUTTONS
+   ============================================================ */
+
+.dark button {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* Primary buttons */
+
+.dark .btn-primary {
+  background:
+    linear-gradient(135deg,
+      #f0ede6,
+      #d9d4ca);
+
+  color: #11110f;
+
+  border-color: transparent;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.dark .btn-primary:hover {
+  background:
+    linear-gradient(135deg,
+      #ffffff,
+      #e9e4da);
+
+  color: #11110f;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 18px rgba(0, 0, 0, 0.35);
+}
+
+
+/* ============================================================
+   GOLD ACCENT BUTTONS
+   ============================================================ */
+
+.dark .accent-button,
+.dark [data-accent="true"] {
+  background:
+    linear-gradient(135deg,
+      #e0b63b,
+      #b98b1e);
+
+  color: #15130e;
+
+  border-color: transparent;
+
+  box-shadow:
+    0 5px 15px rgba(211, 166, 46, 0.16);
+}
+
+
+/* ============================================================
+   DARK MODE — LINKS
+   ============================================================ */
+
+.dark a {
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+
+/* ============================================================
+   DARK MODE — SIDEBAR ACTIVE ITEM
+   ============================================================ */
+
+.dark aside a[aria-current="page"],
+.dark aside a.active {
+  background:
+    linear-gradient(90deg,
+      rgba(211, 166, 46, 0.12),
+      rgba(211, 166, 46, 0.04));
+
+  color: #f4f1eb;
+
+  border-left-color: #d3a62e;
+}
+
+
+/* ============================================================
+   DARK MODE — SIDEBAR HOVER
+   ============================================================ */
+
+.dark aside a:hover {
+  background: #1a1917;
+  color: #f4f1eb;
+}
+
+
+/* ============================================================
+   DARK MODE — DIVIDERS
+   ============================================================ */
+
+.dark hr {
+  border-color: #292824;
+}
+
+
+/* ============================================================
+   DARK MODE — BADGES
+   ============================================================ */
+
+.dark .badge,
+.dark [class*="badge"] {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ============================================================
+   SUCCESS
+   ============================================================ */
+
+.dark .text-green-500,
+.dark .text-green-600 {
+  color: #4ade80 !important;
+}
+
+.dark .bg-green-50 {
+  background: #0d2416 !important;
+}
+
+
+/* ============================================================
+   WARNING
+   ============================================================ */
+
+.dark .text-yellow-500,
+.dark .text-yellow-600,
+.dark .text-orange-500 {
+  color: #fbbf24 !important;
+}
+
+.dark .bg-yellow-50,
+.dark .bg-orange-50 {
+  background: #2a210d !important;
+}
+
+
+/* ============================================================
+   DANGER
+   ============================================================ */
+
+.dark .text-red-500,
+.dark .text-red-600 {
+  color: #f87171 !important;
+}
+
+.dark .bg-red-50 {
+  background: #2a1111 !important;
+}
+
+
+/* ============================================================
+   INFO
+   ============================================================ */
+
+.dark .text-blue-500,
+.dark .text-blue-600 {
+  color: #60a5fa !important;
+}
+
+.dark .bg-blue-50 {
+  background: #0d1c31 !important;
+}
+
+
+/* ============================================================
+   DARK MODE — MODALS
+   ============================================================ */
+
+.dark [role="dialog"] {
+  background:
+    linear-gradient(145deg,
+      #1b1b18,
+      #141412) !important;
+
+  color: #f4f1eb;
+
+  border-color: #302f2a !important;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.65);
+}
+
+
+/* ============================================================
+   DARK MODE — DROPDOWNS
+   ============================================================ */
+
+.dark [role="menu"],
+.dark [role="listbox"] {
+  background: #181816 !important;
+  color: #f0ede6;
+
+  border-color: #302f2a !important;
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+
+/* ============================================================
+   DARK MODE — SEARCH
+   ============================================================ */
+
+.dark input[type="search"] {
+  background:
+    linear-gradient(180deg,
+      #1b1b18,
+      #151513) !important;
+}
+
+
+/* ============================================================
+   DARK MODE — ICON CONTAINERS
+   ============================================================ */
+
+.dark svg {
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+
+/* ============================================================
+   DARK MODE — CHART AREA
+   ============================================================ */
+
+.dark canvas {
+  filter: brightness(0.92) contrast(1.04);
+}
+
+
+/* ============================================================
+   DARK MODE — SCROLLBAR
+   ============================================================ */
+
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0b0b0a;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background:
+    linear-gradient(180deg,
+      #3b3932,
+      #292824);
+
+  border-radius: 999px;
+
+  border: 2px solid #0b0b0a;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background:
+    linear-gradient(180deg,
+      #5b574d,
+      #3b3932);
+}
+
+
+/* ============================================================
+   DARK MODE — TEXT SELECTION
+   ============================================================ */
+
+.dark ::selection {
+  background: rgba(211, 166, 46, 0.35);
+  color: #ffffff;
+}
+
+
+/* ============================================================
+   DARK MODE — FOCUS
+   ============================================================ */
+
+.dark :focus-visible {
+  outline: 2px solid #d3a62e;
+  outline-offset: 2px;
+}
+
+
+/* ============================================================
+   PREMIUM CARD TOP HIGHLIGHT
+   ============================================================ */
+
+.dark .card-refined::before {
+  content: "";
+
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 0;
+
+  height: 1px;
+
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent);
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   GLOBAL SMOOTH TRANSITION
+   ============================================================ */
+
+body,
+aside,
+main,
+section,
+article,
+header,
+footer,
+button,
+input,
+textarea,
+select,
+table,
+tr,
+td,
+th,
+.card-refined {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }

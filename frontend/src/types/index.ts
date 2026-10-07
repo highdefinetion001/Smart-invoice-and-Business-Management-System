@@ -113,3 +113,29 @@ export interface LoginResponse {
   name: string;
   email: string;
 }
+
+export interface FollowUp {
+  id: number;
+  customer: Customer;
+  title: string;
+  followUpDate: string;
+  note?: string;
+  status: "PENDING" | "COMPLETED" | "CANCELLED" | string;
+  createdAt?: string;
+}
+
+export type CalendarEventType = "invoice_due" | "payment_received" | "follow_up" | "expense_due";
+
+export interface CalendarEventItem {
+  id: string;
+  type: CalendarEventType;
+  title: string;
+  date: string; // YYYY-MM-DD
+  amount?: number;
+  status?: string;
+  entityId?: number;
+  customerName?: string;
+  category?: string;
+  description?: string;
+  raw?: any;
+}

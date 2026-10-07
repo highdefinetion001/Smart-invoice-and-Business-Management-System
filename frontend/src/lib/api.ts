@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -77,4 +77,17 @@ export const dashboardApi = {
 export const settingsApi = {
   get: () => api.get("/settings"),
   update: (data: Record<string, unknown>) => api.put("/settings", data),
+};
+
+// Follow-ups
+export const followUpsApi = {
+  getAll: (start?: string, end?: string) => {
+    const params = start && end ? `?start=${start}&end=${end}` : "";
+    return api.get(`/follow-ups${params}`);
+  },
+  getById: (id: number) => api.get(`/follow-ups/${id}`),
+  create: (data: Record<string, unknown>) => api.post("/follow-ups", data),
+  update: (id: number, data: Record<string, unknown>) => api.put(`/follow-ups/${id}`, data),
+  toggle: (id: number) => api.patch(`/follow-ups/${id}/toggle`),
+  delete: (id: number) => api.delete(`/follow-ups/${id}`),
 };

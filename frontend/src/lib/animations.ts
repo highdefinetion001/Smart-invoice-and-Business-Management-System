@@ -225,7 +225,7 @@ export const microInteractions = {
 
   errorShake: (element: HTMLElement) => {
     return gsap.to(element, {
-      x: [-8, 8, -6, 6, -3, 3, 0],
+      keyframes: [{ x: -8 }, { x: 8 }, { x: -6 }, { x: 6 }, { x: -3 }, { x: 3 }, { x: 0 }],
       duration: DURATION.normal,
       ease: 'power2.out',
     });
