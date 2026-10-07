@@ -3,18 +3,15 @@
 import React, { useEffect, useState } from "react";
 import { settingsApi } from "@/lib/api";
 import { BusinessSettings } from "@/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { usePageAnimation } from "@/hooks/usePageAnimation";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<BusinessSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const containerRef = usePageAnimation();
 
   useEffect(() => {
     settingsApi.get().then((res) => setSettings(res.data)).catch(() => toast.error("Failed to load settings")).finally(() => setLoading(false));
@@ -23,10 +20,8 @@ export default function SettingsPage() {
   const handleSave = async () => {
     if (!settings) return;
     setSaving(true);
-    try {
-      await settingsApi.update(settings as unknown as Record<string, unknown>);
-      toast.success("Settings saved");
-    } catch { toast.error("Failed to save"); }
+    try { await settingsApi.update(settings as unknown as Record<string, unknown>); toast.success("Settings saved"); }
+    catch { toast.error("Failed to save"); }
     finally { setSaving(false); }
   };
 
@@ -34,43 +29,85 @@ export default function SettingsPage() {
     if (settings) setSettings({ ...settings, [field]: value });
   };
 
-  if (loading) return <div className="flex h-[60vh] items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" /></div>;
+  if (loading) return (
+    <div style={{ display: 'flex', height: '60vh', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '40px', height: '40px', border: '3px solid var(--stone-200)', borderTopColor: 'var(--primary-950)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+    </div>
+  );
+
+  const FieldLabel = ({ children }: { children: React.ReactNode }) => (
+    <label style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 500, color: 'var(--stone-600)', marginBottom: '6px' }}>{children}</label>
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold text-foreground">Settings</h1><p className="text-sm text-muted-foreground">Configure your business profile</p></div>
-        <Button onClick={handleSave} disabled={saving} className="">
-          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Save Settings
-        </Button>
+    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div data-animate="page-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', fontWeight: 600, color: 'var(--stone-900)', marginBottom: '4px' }}>Settings</h1>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--stone-400)' }}>Configure your business profile</p>
+        </div>
+        <button onClick={handleSave} disabled={saving} className="btn-primary" style={{ height: '42px', padding: '0 24px' }}>
+          {saving ? <Loader2 style={{ width: '16px', height: '16px', animation: 'spin 0.8s linear infinite' }} /> : <Save style={{ width: '16px', height: '16px' }} />}
+          Save Settings
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card className="border-border">
-          <CardHeader><CardTitle className="text-base">Business Information</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2"><Label>Business Name</Label><Input value={settings?.businessName || ""} onChange={(e) => update("businessName", e.target.value)} placeholder="Your Business Name" /></div>
-            <div className="space-y-2"><Label>Address</Label><Textarea value={settings?.address || ""} onChange={(e) => update("address", e.target.value)} placeholder="Full address" /></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Phone</Label><Input value={settings?.phone || ""} onChange={(e) => update("phone", e.target.value)} /></div>
-              <div className="space-y-2"><Label>Email</Label><Input value={settings?.email || ""} onChange={(e) => update("email", e.target.value)} /></div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        {/* Business Information */}
+        <div data-animate="card" style={{ background: '#FFFFFF', border: '1px solid var(--stone-200)', borderRadius: '14px', padding: '28px' }}>
+          <div className="section-label" style={{ marginBottom: '24px' }}>Business Information</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div data-animate="field">
+              <FieldLabel>Business Name</FieldLabel>
+              <input value={settings?.businessName || ""} onChange={(e) => update("businessName", e.target.value)} placeholder="Your Business Name" className="input-refined" />
             </div>
-            <div className="space-y-2"><Label>GSTIN</Label><Input value={settings?.gstNumber || ""} onChange={(e) => update("gstNumber", e.target.value)} placeholder="GST Number" /></div>
-          </CardContent>
-        </Card>
+            <div data-animate="field">
+              <FieldLabel>Address</FieldLabel>
+              <textarea value={settings?.address || ""} onChange={(e) => update("address", e.target.value)} placeholder="Full address" rows={3}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid var(--stone-200)', borderRadius: '10px', fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--stone-900)', resize: 'vertical', outline: 'none' }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--primary-600)'; }} onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--stone-200)'; }}
+              />
+            </div>
+            <div data-animate="field" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div><FieldLabel>Phone</FieldLabel><input value={settings?.phone || ""} onChange={(e) => update("phone", e.target.value)} className="input-refined" /></div>
+              <div><FieldLabel>Email</FieldLabel><input value={settings?.email || ""} onChange={(e) => update("email", e.target.value)} className="input-refined" /></div>
+            </div>
+            <div data-animate="field">
+              <FieldLabel>GSTIN</FieldLabel>
+              <input value={settings?.gstNumber || ""} onChange={(e) => update("gstNumber", e.target.value)} placeholder="GST Number" className="input-refined" />
+            </div>
+          </div>
+        </div>
 
-        <Card className="border-border">
-          <CardHeader><CardTitle className="text-base">Invoice Configuration</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Invoice Prefix</Label><Input value={settings?.invoicePrefix || ""} onChange={(e) => update("invoicePrefix", e.target.value)} placeholder="INV" /></div>
-              <div className="space-y-2"><Label>Default GST Rate (%)</Label><Input type="number" value={settings?.defaultTaxRate || ""} onChange={(e) => update("defaultTaxRate", e.target.value)} /></div>
+        {/* Invoice Configuration */}
+        <div data-animate="card" style={{ background: '#FFFFFF', border: '1px solid var(--stone-200)', borderRadius: '14px', padding: '28px' }}>
+          <div className="section-label" style={{ marginBottom: '24px' }}>Invoice Configuration</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div data-animate="field" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div><FieldLabel>Invoice Prefix</FieldLabel><input value={settings?.invoicePrefix || ""} onChange={(e) => update("invoicePrefix", e.target.value)} placeholder="INV" className="input-refined" /></div>
+              <div><FieldLabel>Default GST Rate (%)</FieldLabel><input type="number" value={settings?.defaultTaxRate || ""} onChange={(e) => update("defaultTaxRate", e.target.value)} className="input-refined" /></div>
             </div>
-            <div className="space-y-2"><Label>Invoice Footer</Label><Textarea value={settings?.invoiceFooter || ""} onChange={(e) => update("invoiceFooter", e.target.value)} placeholder="Thank you for your business." /></div>
-            <div className="space-y-2"><Label>Bank Details</Label><Textarea value={settings?.bankDetails || ""} onChange={(e) => update("bankDetails", e.target.value)} placeholder="Bank name, A/C number, IFSC..." /></div>
-            <div className="space-y-2"><Label>UPI Details</Label><Input value={settings?.upiDetails || ""} onChange={(e) => update("upiDetails", e.target.value)} placeholder="yourname@upi" /></div>
-          </CardContent>
-        </Card>
+            <div data-animate="field">
+              <FieldLabel>Invoice Footer</FieldLabel>
+              <textarea value={settings?.invoiceFooter || ""} onChange={(e) => update("invoiceFooter", e.target.value)} placeholder="Thank you for your business." rows={3}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid var(--stone-200)', borderRadius: '10px', fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--stone-900)', resize: 'vertical', outline: 'none' }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--primary-600)'; }} onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--stone-200)'; }}
+              />
+            </div>
+            <div data-animate="field">
+              <FieldLabel>Bank Details</FieldLabel>
+              <textarea value={settings?.bankDetails || ""} onChange={(e) => update("bankDetails", e.target.value)} placeholder="Bank name, A/C number, IFSC..." rows={3}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid var(--stone-200)', borderRadius: '10px', fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--stone-900)', resize: 'vertical', outline: 'none' }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--primary-600)'; }} onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--stone-200)'; }}
+              />
+            </div>
+            <div data-animate="field">
+              <FieldLabel>UPI Details</FieldLabel>
+              <input value={settings?.upiDetails || ""} onChange={(e) => update("upiDetails", e.target.value)} placeholder="yourname@upi" className="input-refined" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

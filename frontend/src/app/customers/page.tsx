@@ -1,17 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { customersApi } from "@/lib/api";
 import { Customer } from "@/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Plus, Pencil, Trash2, Users, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Search, Eye, X, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { gsap } from "gsap";
+import { usePageAnimation } from "@/hooks/usePageAnimation";
 
 const emptyCustomer = { name: "", phone: "", email: "", address: "", gstNumber: "", notes: "" };
 
@@ -22,24 +17,24 @@ export default function CustomersPage() {
   const [editing, setEditing] = useState<Customer | null>(null);
   const [form, setForm] = useState(emptyCustomer);
   const [search, setSearch] = useState("");
+  const containerRef = usePageAnimation();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { loadCustomers(); }, []);
 
   const loadCustomers = async () => {
     try { setCustomers((await customersApi.getAll()).data); }
-    catch { toast.error("Failed to load customers"); }
+    catch { /* silently fail */ }
     finally { setLoading(false); }
   };
 
   const handleSave = async () => {
-    if (!form.name.trim() || !form.phone.trim()) {
-      toast.error("Name and Phone are required");
-      return;
-    }
+    if (!form.name.trim() || !form.phone.trim()) { toast.error("Name and Phone are required"); return; }
     try {
       if (editing) { await customersApi.update(editing.id, form); toast.success("Customer updated"); }
       else { await customersApi.create(form); toast.success("Customer created"); }
-      setDialogOpen(false); setEditing(null); setForm(emptyCustomer); loadCustomers();
+      closeDialog(); loadCustomers();
     } catch { toast.error("Failed to save customer"); }
   };
 
@@ -55,84 +50,205 @@ export default function CustomersPage() {
     setDialogOpen(true);
   };
 
+  const openDialog = () => { setEditing(null); setForm(emptyCustomer); setDialogOpen(true); };
+
+  const closeDialog = () => {
+    if (dialogRef.current) {
+      gsap.to(dialogRef.current, { opacity: 0, scale: 0.98, y: 10, duration: 0.2, onComplete: () => { setDialogOpen(false); setEditing(null); setForm(emptyCustomer); } });
+    } else { setDialogOpen(false); setEditing(null); setForm(emptyCustomer); }
+  };
+
+  useEffect(() => {
+    if (dialogOpen && dialogRef.current && overlayRef.current) {
+      gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+      gsap.fromTo(dialogRef.current, { opacity: 0, scale: 0.95, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+      gsap.fromTo(dialogRef.current.querySelectorAll('[data-animate="dialog-field"]'), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.08, ease: 'power2.out', delay: 0.2 });
+    }
+  }, [dialogOpen]);
+
   const filtered = customers.filter(
     (c) => c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
   );
 
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Customers</h1>
-          <p className="text-sm text-muted-foreground">Manage your customer records</p>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm(emptyCustomer); } }}>
-          <DialogTrigger>
-            <Button className="shadow-md">
-              <Plus className="mr-2 h-4 w-4" /> Add Customer
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>{editing ? "Edit Customer" : "Add Customer"}</DialogTitle></DialogHeader>
-            <div className="space-y-4 pt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label>Customer Name</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="ABC Pvt Ltd" /></div>
-                <div className="space-y-2"><Label>Phone Number</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+91 98765 43210" /></div>
-              </div>
-              <div className="space-y-2"><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="customer@example.com" /></div>
-              <div className="space-y-2"><Label>Address</Label><Textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Full address..." /></div>
-              <div className="space-y-2"><Label>GST Number (Optional)</Label><Input value={form.gstNumber} onChange={(e) => setForm({ ...form, gstNumber: e.target.value })} placeholder="GSTIN" /></div>
-              <div className="space-y-2"><Label>Notes</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></div>
-              <Button onClick={handleSave} className="w-full">
-                {editing ? "Update Customer" : "Create Customer"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Page Header */}
+      <div data-animate="page-title">
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '28px', fontWeight: 600, color: 'var(--stone-900)', marginBottom: '4px' }}>
+          Customers
+        </h1>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--stone-400)' }}>
+          Manage your customer directory
+        </p>
       </div>
 
-      <Card className="border-border">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold">All Customers</CardTitle>
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search customers..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+      {/* Toolbar */}
+      <div data-animate="toolbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ position: 'relative', width: '320px' }}>
+          <Search style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: 'var(--stone-400)' }} />
+          <input placeholder="Search customers..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-refined" style={{ paddingLeft: '40px', height: '42px' }} />
+        </div>
+        <button onClick={openDialog} className="btn-primary" style={{ height: '42px', padding: '0 20px' }}>
+          <Plus style={{ width: '16px', height: '16px' }} /> Add Customer
+        </button>
+      </div>
+
+      {/* Customer Cards */}
+      <div data-animate="table-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {loading ? (
+          <div style={{ display: 'flex', height: '200px', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '32px', height: '32px', border: '3px solid var(--stone-200)', borderTopColor: 'var(--primary-950)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', height: '200px', alignItems: 'center', justifyContent: 'center', color: 'var(--stone-400)' }}>
+            <Users style={{ width: '40px', height: '40px', marginBottom: '8px' }} />
+            <p>No customers found</p>
+          </div>
+        ) : filtered.map((c) => (
+          <div
+            key={c.id}
+            data-animate="customer-card"
+            style={{
+              background: '#FFFFFF', border: '1px solid var(--stone-200)',
+              borderRadius: '14px', padding: '24px', boxShadow: 'var(--shadow-xs)',
+              transition: 'all 0.3s ease', cursor: 'default',
+            }}
+            onMouseEnter={(e) => {
+              gsap.to(e.currentTarget, { y: -2, boxShadow: '0 4px 6px -1px rgba(28,25,23,0.06), 0 2px 4px -2px rgba(28,25,23,0.06)', duration: 0.3, ease: 'power2.out' });
+            }}
+            onMouseLeave={(e) => {
+              gsap.to(e.currentTarget, { y: 0, boxShadow: '0 1px 2px 0 rgba(28,25,23,0.03)', duration: 0.3, ease: 'power2.out' });
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                {/* Avatar */}
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '10px',
+                  background: 'var(--primary-100)', color: 'var(--primary-700)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 700, flexShrink: 0,
+                }}>
+                  {getInitials(c.name)}
+                </div>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 600, color: 'var(--stone-900)', marginBottom: '4px' }}>
+                    {c.name}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '13px', color: 'var(--stone-500)' }}>
+                    {c.phone}
+                    {c.email && <> • {c.email}</>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button onClick={() => openEdit(c)} style={{
+                  width: '32px', height: '32px', borderRadius: '8px', border: 'none',
+                  background: 'transparent', cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', color: 'var(--stone-400)',
+                  transition: 'all 0.2s',
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--stone-100)'; e.currentTarget.style.color = 'var(--stone-600)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--stone-400)'; }}
+                >
+                  <Pencil style={{ width: '16px', height: '16px' }} />
+                </button>
+                <button onClick={() => handleDelete(c.id)} style={{
+                  width: '32px', height: '32px', borderRadius: '8px', border: 'none',
+                  background: 'transparent', cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', color: 'var(--stone-400)',
+                  transition: 'all 0.2s',
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--danger-50)'; e.currentTarget.style.color = 'var(--danger-500)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--stone-400)'; }}
+                >
+                  <Trash2 style={{ width: '16px', height: '16px' }} />
+                </button>
+              </div>
+            </div>
+
+            {/* Financial row */}
+            {c.gstNumber && (
+              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--stone-100)', display: 'flex', gap: '24px' }}>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', textTransform: 'uppercase' as const, letterSpacing: 'var(--tracking-wider)', color: 'var(--stone-400)', marginBottom: '2px' }}>
+                    GST Number
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--stone-600)' }}>
+                    {c.gstNumber}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Dialog */}
+      {dialogOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div ref={overlayRef} onClick={closeDialog} style={{ position: 'absolute', inset: 0, background: 'var(--surface-overlay)' }} />
+          <div ref={dialogRef} style={{
+            position: 'relative', width: '100%', maxWidth: '520px',
+            background: '#FFFFFF', borderRadius: '16px', padding: '32px',
+            boxShadow: 'var(--shadow-xl)', zIndex: 1,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', fontWeight: 600, color: 'var(--stone-900)' }}>
+                {editing ? "Edit Customer" : "Add Customer"}
+              </h2>
+              <button onClick={closeDialog} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--stone-400)' }}>
+                <X style={{ width: '20px', height: '20px' }} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div data-animate="dialog-field" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 500, color: 'var(--stone-600)', marginBottom: '6px' }}>Customer Name *</label>
+                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="ABC Pvt Ltd" className="input-refined" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 500, color: 'var(--stone-600)', marginBottom: '6px' }}>Phone Number *</label>
+                  <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+91 98765 43210" className="input-refined" />
+                </div>
+              </div>
+              <div data-animate="dialog-field">
+                <label style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 500, color: 'var(--stone-600)', marginBottom: '6px' }}>Email</label>
+                <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="customer@example.com" className="input-refined" />
+              </div>
+              <div data-animate="dialog-field">
+                <label style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 500, color: 'var(--stone-600)', marginBottom: '6px' }}>Address</label>
+                <textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Full address..." rows={3}
+                  style={{ width: '100%', padding: '12px 16px', border: '1px solid var(--stone-200)', borderRadius: '10px', fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--stone-900)', resize: 'vertical', outline: 'none' }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--primary-600)'; }} onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--stone-200)'; }}
+                />
+              </div>
+              <div data-animate="dialog-field">
+                <label style={{ display: 'block', fontFamily: 'var(--font-sans)', fontSize: '13px', fontWeight: 500, color: 'var(--stone-600)', marginBottom: '6px' }}>GST Number (Optional)</label>
+                <input value={form.gstNumber} onChange={(e) => setForm({ ...form, gstNumber: e.target.value })} placeholder="GSTIN" className="input-refined" />
+              </div>
+
+              <div data-animate="dialog-field" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '8px' }}>
+                <button onClick={closeDialog} style={{ height: '42px', padding: '0 20px', borderRadius: '10px', border: '1px solid var(--stone-200)', background: 'transparent', fontFamily: 'var(--font-sans)', fontSize: '14px', color: 'var(--stone-600)', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={handleSave} className="btn-primary" style={{ height: '42px', padding: '0 24px' }}>
+                  {editing ? "Update" : "Create"} Customer <ArrowRight style={{ width: '16px', height: '16px' }} />
+                </button>
+              </div>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex h-40 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" /></div>
-          ) : filtered.length === 0 ? (
-            <div className="flex h-40 flex-col items-center justify-center text-muted-foreground"><Users className="mb-2 h-10 w-10" /><p>No customers found</p></div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead><TableHead>Phone</TableHead><TableHead>Email</TableHead><TableHead>GST</TableHead><TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((c) => (
-                  <TableRow key={c.id} className="group">
-                    <TableCell className="font-medium">{c.name}</TableCell>
-                    <TableCell>{c.phone}</TableCell>
-                    <TableCell className="text-muted-foreground">{c.email || "—"}</TableCell>
-                    <TableCell className="font-mono text-sm text-muted-foreground">{c.gstNumber || "—"}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                        <Button size="sm" variant="ghost" onClick={() => openEdit(c)}><Pencil className="h-4 w-4" /></Button>
-                        <Button size="sm" variant="ghost" className="text-red-500" onClick={() => handleDelete(c.id)}><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      )}
     </div>
   );
 }
